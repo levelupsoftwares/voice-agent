@@ -1,0 +1,12 @@
+# Ignore python cache
+__pycache__/
+**/__pycache__/
+
+# Ignore virtual environment
+venv/
+
+# Ignore environment variables
+.env.local
+
+# Ignore sensitive email credentials file
+utilis/sendMail/emailAccount.py
