@@ -44,19 +44,42 @@ def main():
         # print(f'Space created: {response.meeting_uri}')
         service = build("calendar","v3", credentials=creds)
 
-        now =  dt.datetime.now().isoformat() + "Z"
+        # fOR ACCESSING THE EVENTS
+        # now =  dt.datetime.now().isoformat() + "Z"
 
-        event_result = service.events().list(calendarId="primary", timeMin=now, maxResults=3, singleEvents=True, orderBy="startTime").execute()
-        events = event_result.get("items",[])
+        # event_result = service.events().list(calendarId="primary", timeMin=now, maxResults=3, singleEvents=True, orderBy="startTime").execute()
+        # events = event_result.get("items",[])
 
-        if not events:
-            print("no upcoming events")
-            return
+        # if not events:
+        #     print("no upcoming events")
+        #     return
         
-        for event in events:
-            start = event["start"].get("dateTime", event["start"].get("date"))
-            print(start,event["summary"])
+        # for event in events:
+        #     start = event["start"].get("dateTime", event["start"].get("date"))
+        #     print(start,event["summary"])
 
+        event = {
+            "summary":"Python Event",
+            "location":"oNLINE",
+            "description":"client1-solution deatil",
+            "colorId":6,
+            "start":{
+                "dateTime":"2025-12-17T23:00:00+05:00",
+                "timeZone":"Asia/Karachi"
+            },
+            "end":{
+                "dateTime":"2025-12-17T23:55:00+05:00",
+                "timeZone":"Asia/Karachi"
+            },
+            "attendees":[
+                {"email":"usmanbutt2357@gmail.com"}
+            ]
+
+        }
+
+        event = service.events().insert(calendarId="primary",body=event).execute()
+        print("Event created {event.get('htmlLink')}")
+     
 
     except HttpError as error:
         # TODO(developer) - Handle errors from Meet API.
