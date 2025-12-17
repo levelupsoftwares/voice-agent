@@ -14,7 +14,7 @@ from livekit.agents.beta.workflows import GetEmailTask
 
 load_dotenv(".env.local")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-ELEVEN_API_KEY=os.getenv("ELEVENLAB_API_KEY")
+# ELEVEN_API_KEY=os.getenv("ELEVENLAB_API_KEY")
 
 class Assistant(Agent):
     def __init__(self) -> None:
@@ -27,7 +27,7 @@ class Assistant(Agent):
 
         self.user_problem = None
         self.solution = None
-        
+
     @function_tool
     async def save_problem(self, problem: str):
         """Save user's problem for later email delivery"""
@@ -88,9 +88,9 @@ async def my_agent(ctx: agents.JobContext):
         llm=groq.LLM(
         model="llama-3.1-8b-instant"
     ),
-      tts=elevenlabs.TTS(
-      voice_id="ODq5zmih8GrVes37Dizd",
-      model="eleven_multilingual_v2"
+      tts=groq.TTS(
+      model = "playai-tts",
+      voice = "Fritz-PlayAI",
    ),
         vad=silero.VAD.load(),
         turn_detection=MultilingualModel(),

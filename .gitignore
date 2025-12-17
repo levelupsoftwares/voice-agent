@@ -10,3 +10,9 @@ venv/
 
 # Ignore sensitive email credentials file
 utilis/sendMail/emailAccount.py
+
+# Ignore credentials.json
+credentials.json
+
+# Ignore token.json
+token.json
