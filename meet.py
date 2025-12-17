@@ -57,34 +57,43 @@ def main():
         # for event in events:
         #     start = event["start"].get("dateTime", event["start"].get("date"))
         #     print(start,event["summary"])
+        def eventCreate(summary,location,description,date,s_time,e_time,attendee_email):
+                event = {
+                    "summary":summary,
+                    "location":location,
+                    "description":description,
+                    "colorId":6,
+                    "start":{
+                        "dateTime":f"2025-12-{date}T{s_time}+05:00",
+                        "timeZone":"Asia/Karachi"
+                    },
+                    "end":{
+                        "dateTime":f"2025-12-{date}T{e_time}+05:00",
+                        "timeZone":"Asia/Karachi"
+                    },
+                    "attendees":[
+                        {"email":f"{attendee_email}"}
+                    ],
+                    "conferenceData" : {
+                        "createRequest": {
+                            "requestId":"012345",
+                            "conferenceSolutionKey": {
+                                "type": "hangoutsMeet"
+                            }
+                        }
+                    }
 
-        event = {
-            "summary":"Python Event",
-            "location":"oNLINE",
-            "description":"client1-solution deatil",
-            "colorId":6,
-            "start":{
-                "dateTime":"2025-12-17T23:00:00+05:00",
-                "timeZone":"Asia/Karachi"
-            },
-            "end":{
-                "dateTime":"2025-12-17T23:55:00+05:00",
-                "timeZone":"Asia/Karachi"
-            },
-            "attendees":[
-                {"email":"usmanbutt2357@gmail.com"}
-            ]
+                }
+                
 
-        }
-
-        event = service.events().insert(calendarId="primary",body=event).execute()
-        print("Event created {event.get('htmlLink')}")
+                event = service.events().insert(calendarId="primary",body=event,conferenceDataVersion=1).execute()
+                print("Event created {event.get('htmlLink')}")
      
 
     except HttpError as error:
         # TODO(developer) - Handle errors from Meet API.
         print(f'An error occurred: {error}')
 
-
+    eventCreate("summary","location","description",18,"00:17:00","00:17:30","usmanbutt2357@gmail.com")
 if __name__ == '__main__':
     main()
