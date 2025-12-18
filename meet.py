@@ -17,32 +17,34 @@ SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 
 # def main():
-"""Shows basic usage of the Google Meet API.
-    """
-creds = None
-    # The file token.json stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
-if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
+def get_calendar_service():
+    """Shows basic usage of the Google Meet API.
+        """
+    creds = None
+        # The file token.json stores the user's access and refresh tokens, and is
+        # created automatically when the authorization flow completes for the first
+        # time.
+    if os.path.exists('token.json'):
+            creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+        # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    'credentials.json', SCOPES)
+                creds = flow.run_local_server(port=0)
+            # Save the credentials for the next run
+            with open('token.json', 'w') as token:
+                token.write(creds.to_json())
 
-try:
-        # client = meet_v2.SpacesServiceClient(credentials=creds)
-        # request = meet_v2.CreateSpaceRequest()
-        # response = client.create_space(request=request)
-        # print(f'Space created: {response.meeting_uri}')
-        service = build("calendar","v3", credentials=creds)
+
+            # client = meet_v2.SpacesServiceClient(credentials=creds)
+            # request = meet_v2.CreateSpaceRequest()
+            # response = client.create_space(request=request)
+            # print(f'Space created: {response.meeting_uri}')
+    service = build("calendar","v3", credentials=creds)
+    return service
 
         # fOR ACCESSING THE EVENTS
         # now =  dt.datetime.now().isoformat() + "Z"
@@ -57,43 +59,41 @@ try:
         # for event in events:
         #     start = event["start"].get("dateTime", event["start"].get("date"))
         #     print(start,event["summary"])
-        def eventCreate(summary,location,description,date,s_time,e_time,attendee_email):
-                event = {
-                    "summary":summary,
-                    "location":location,
-                    "description":description,
-                    "colorId":6,
-                    "start":{
-                        "dateTime":f"2025-12-{date}T{s_time}+05:00",
-                        "timeZone":"Asia/Karachi"
-                    },
-                    "end":{
-                        "dateTime":f"2025-12-{date}T{e_time}+05:00",
-                        "timeZone":"Asia/Karachi"
-                    },
-                    "attendees":[
-                        {"email":f"{attendee_email}"}
-                    ],
-                    "conferenceData" : {
-                        "createRequest": {
-                            "requestId":"012345",
-                            "conferenceSolutionKey": {
-                                "type": "hangoutsMeet"
-                            }
-                        }
+def eventCreate(service,summary,location,description,date,s_time,e_time,attendee_email):
+        event = {
+            "summary":summary,
+            "location":location,
+            "description":description,
+            "colorId":6,
+            "start":{
+                "dateTime":f"2025-12-{date}T{s_time}+05:00",
+                "timeZone":"Asia/Karachi"
+            },
+            "end":{
+                "dateTime":f"2025-12-{date}T{e_time}+05:00",
+                "timeZone":"Asia/Karachi"
+            },
+            "attendees":[
+                {"email":f"{attendee_email}"}
+            ],
+            "conferenceData" : {
+                "createRequest": {
+                    "requestId":"012345",
+                    "conferenceSolutionKey": {
+                        "type": "hangoutsMeet"
                     }
-
                 }
-                
+            }
 
-                event = service.events().insert(calendarId="primary",body=event,conferenceDataVersion=1).execute()
-                print("Event created {event.get('htmlLink')}")
-     
+        }
+        
 
-except HttpError as error:
-        # TODO(developer) - Handle errors from Meet API.
-        print(f'An error occurred: {error}')
+        try:
+                event = service.events().insert(calendarId="primary", body=event, conferenceDataVersion=1).execute()
+                print(f"Event created: {event.get('htmlLink')}")
+        except HttpError as error:
+                print(f"An error occurred: {error}")
 
-eventCreate("summary","location","description",19,"00:17:00","00:17:30","usmanbutt2357@gmail.com")
+# eventCreate("summary","location","description",19,"00:17:00","00:17:30","usmanbutt2357@gmail.com")
 # if __name__ == '__main__':
 #     main()

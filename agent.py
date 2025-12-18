@@ -1,7 +1,8 @@
 from dotenv import load_dotenv
 from livekit.agents import AgentTask, function_tool , RunContext
 from utilis.sendMail.emailSend import emailSend
-from meet import eventCreate
+from meet import get_calendar_service, eventCreate
+import asyncio
 
 import os
 
@@ -56,13 +57,15 @@ class Assistant(Agent):
 
     
     @function_tool
-    async def meeting_datetime(self,schedule_time:str,schedule_date:str,schedule_end_time:int):       
+    async def meeting_datetime(self,schedule_time:str,schedule_date:str,schedule_end_time:str):       
             """call when user agreed for meeting else ignore"""
             self.schedule_date = schedule_date
             self.schedule_time = schedule_time
             self.schedule_end_time = schedule_end_time
             
-            eventCreate("Schedule Meeting","Lahore","Dignose the problem from root cause",schedule_date,schedule_date,schedule_end_time,self.user_email)
+            service = await asyncio.to_thread(get_calendar_service)
+            await asyncio.to_thread(eventCreate,service,"Schedule Meeting","Lahore","Diagnose the problem from root cause",schedule_date,schedule_end_time,self.user_email)
+            # eventCreate("Schedule Meeting","Lahore","Dignose the problem from root cause",schedule_date,schedule_end_time,self.user_email)
 
             return {"ok": "Date and time set for meeting + calneder event pushed"}
     
@@ -104,7 +107,7 @@ class Assistant(Agent):
     Best regards,
     AI Assistant
     """
-        emailSend(self.user_email, body, subject)
+        await asyncio.to_thread(emailSend(self.user_email, body, subject))
         return {"ok": "email_sent"}
 
 
