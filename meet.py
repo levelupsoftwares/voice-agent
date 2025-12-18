@@ -16,17 +16,17 @@ from google.apps import meet_v2
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 
-def main():
-    """Shows basic usage of the Google Meet API.
+# def main():
+"""Shows basic usage of the Google Meet API.
     """
-    creds = None
+creds = None
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    if os.path.exists('token.json'):
+if os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
     # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
+if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
@@ -37,7 +37,7 @@ def main():
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
 
-    try:
+try:
         # client = meet_v2.SpacesServiceClient(credentials=creds)
         # request = meet_v2.CreateSpaceRequest()
         # response = client.create_space(request=request)
@@ -90,10 +90,10 @@ def main():
                 print("Event created {event.get('htmlLink')}")
      
 
-    except HttpError as error:
+except HttpError as error:
         # TODO(developer) - Handle errors from Meet API.
         print(f'An error occurred: {error}')
 
-    eventCreate("summary","location","description",18,"00:17:00","00:17:30","usmanbutt2357@gmail.com")
-if __name__ == '__main__':
-    main()
+eventCreate("summary","location","description",19,"00:17:00","00:17:30","usmanbutt2357@gmail.com")
+# if __name__ == '__main__':
+#     main()

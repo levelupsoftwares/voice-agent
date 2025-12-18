@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 from livekit.agents import AgentTask, function_tool , RunContext
 from utilis.sendMail.emailSend import emailSend
+from meet import eventCreate
 
 import os
 
@@ -41,30 +42,104 @@ class Assistant(Agent):
         return {"ok": "solution_saved"}
     
     @function_tool
-    async def email_given(self, email: str):
-        """Called when user confirms email"""
+    async def email_store(self, user_email: str):
+        """Store the confirms email"""
+        self.user_email=  user_email
+        return{"ok":"user email stored"}
 
-        if not self.solution:
-            return {"error": "No solution available to send"}
+    @function_tool
+    async def save_meeting_decision(self, agreed: bool):
+        """save the user decision regarding scheduling meeting"""
+        self.meeting_agreed = agreed
+        return {"ok":"User decision saved"}
+
+
+    
+    @function_tool
+    async def meeting_datetime(self,schedule_time:str,schedule_date:str,schedule_end_time:int):       
+            """call when user agreed for meeting else ignore"""
+            self.schedule_date = schedule_date
+            self.schedule_time = schedule_time
+            self.schedule_end_time = schedule_end_time
+            
+            eventCreate("Schedule Meeting","Lahore","Dignose the problem from root cause",schedule_date,schedule_date,schedule_end_time,self.user_email)
+
+            return {"ok": "Date and time set for meeting + calneder event pushed"}
+    
+    @function_tool
+    async def email_sending(self,user_email: str):
+        """Send final email with solution and optional meeting details"""
+
+        if not self.solution or not self.user_email:
+            return {"error": "Missing solution or email"}
 
         subject = "Solution to Your Problem"
+
         body = f"""
-                    Hello,
+    Hello,
 
-                    Thank you for reaching out.
+    Thank you for reaching out.
 
-                    Here is the solution to your problem:
+    Here is the solution to your problem:
 
-                    {self.solution}
-
-                    If you need further help, feel free to reply.
-
-                    Best regards,
-                    AI Assistant
+    {self.solution}
     """
 
-        emailSend(email, body, subject)
+        if self.meeting_agreed:
+            body += f"""
+
+    We have also scheduled a meeting to discuss this further.
+
+    Meeting Date: {self.schedule_date}
+    Start Time: {self.schedule_time}
+    End Time: {self.schedule_end_time}
+
+    You will receive a calendar invitation shortly.
+    """
+
+        body += """
+
+    If you need further help, feel free to reply.
+
+    Best regards,
+    AI Assistant
+    """
+        emailSend(self.user_email, body, subject)
         return {"ok": "email_sent"}
+
+
+
+
+    # async def email_sending(self, email: str):
+    #     """Called when user confirms email"""
+
+    #     if not self.solution:
+    #         return {"error": "No solution available to send"}
+
+    #     subject = "Solution to Your Problem"
+    #     body = f"""
+    #                 Hello,
+
+    #                 Thank you for reaching out.
+
+    #                 Here is the solution to your problem:
+
+    #                 {self.solution}
+
+    #                 If you need further help, feel free to reply.
+
+    #                 Best regards,
+    #                 AI Assistant
+    # """
+
+    #     emailSend(email, body, subject)
+    #     return {"ok": "email_sent"}
+    
+    # @function_tool
+    # async def shedule_meet(self, email: str,date,):
+    #     """call this when user give an emailaddress"""
+    #     eventCreate("summary","location","description",20,"00:17:00","00:17:30","usmanbutt2357@gmail.com")
+    #     return {"ok": "solution_saved"}
         
     # @function_tool()
     # async def get_alternate_contact_info(context: RunContext, contact_method: str, contact_value: str) -> None:
