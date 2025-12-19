@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import os.path
 import datetime as dt
-
+import uuid
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -59,18 +59,18 @@ def get_calendar_service():
         # for event in events:
         #     start = event["start"].get("dateTime", event["start"].get("date"))
         #     print(start,event["summary"])
-def eventCreate(service,summary,location,description,date,s_time,e_time,attendee_email):
+def eventCreate(service,summary,location,description,s_date_time,e_date_time,attendee_email):
         event = {
             "summary":summary,
             "location":location,
             "description":description,
             "colorId":6,
             "start":{
-                "dateTime":f"2025-12-{date}T{s_time}+05:00",
+                "dateTime":s_date_time,
                 "timeZone":"Asia/Karachi"
             },
             "end":{
-                "dateTime":f"2025-12-{date}T{e_time}+05:00",
+                "dateTime":e_date_time,
                 "timeZone":"Asia/Karachi"
             },
             "attendees":[
@@ -78,7 +78,7 @@ def eventCreate(service,summary,location,description,date,s_time,e_time,attendee
             ],
             "conferenceData" : {
                 "createRequest": {
-                    "requestId":"012345",
+                    "requestId":str(uuid.uuid4()),
                     "conferenceSolutionKey": {
                         "type": "hangoutsMeet"
                     }

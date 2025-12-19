@@ -29,6 +29,8 @@ class Assistant(Agent):
 
         self.user_problem = None
         self.solution = None
+        self.user_email = None
+        self.meeting_agreed = False
 
     @function_tool
     async def save_problem(self, problem: str):
@@ -57,22 +59,24 @@ class Assistant(Agent):
 
     
     @function_tool
-    async def meeting_datetime(self,schedule_time:str,schedule_date:str,schedule_end_time:str):       
+    async def meeting_datetime(self,schedule_date_time:str,schedule_end_time:str):       
             """call when user agreed for meeting else ignore"""
-            self.schedule_date = schedule_date
-            self.schedule_time = schedule_time
+            self.schedule_date_time = schedule_date_time
+            # self.schedule_time = schedule_time
             self.schedule_end_time = schedule_end_time
             
             service = await asyncio.to_thread(get_calendar_service)
-            await asyncio.to_thread(eventCreate,service,"Schedule Meeting","Lahore","Diagnose the problem from root cause",schedule_date,schedule_end_time,self.user_email)
+            await asyncio.to_thread(eventCreate,service,"Schedule Meeting","Lahore","Diagnose the problem from root cause",schedule_date_time,schedule_end_time,self.user_email)
             # eventCreate("Schedule Meeting","Lahore","Dignose the problem from root cause",schedule_date,schedule_end_time,self.user_email)
 
             return {"ok": "Date and time set for meeting + calneder event pushed"}
     
     @function_tool
-    async def email_sending(self,user_email: str):
+    async def email_sending(self,confirm: bool):
         """Send final email with solution and optional meeting details"""
-
+        if not confirm:
+            return {"error": "Email sending not confirmed"}
+    
         if not self.solution or not self.user_email:
             return {"error": "Missing solution or email"}
 
@@ -93,8 +97,8 @@ class Assistant(Agent):
 
     We have also scheduled a meeting to discuss this further.
 
-    Meeting Date: {self.schedule_date}
-    Start Time: {self.schedule_time}
+    Meeting Date and Time: {self.schedule_date_time}
+    # Start Time: {self.schedule_time}
     End Time: {self.schedule_end_time}
 
     You will receive a calendar invitation shortly.
@@ -107,8 +111,12 @@ class Assistant(Agent):
     Best regards,
     AI Assistant
     """
-        await asyncio.to_thread(emailSend(self.user_email, body, subject))
-        return {"ok": "email_sent"}
+        try:
+            await asyncio.to_thread(emailSend,self.user_email, body, subject)
+        except Exception as e:
+            return {"error": str(e)}
+        
+        return{'ok':"email_sent"}
 
 
 
