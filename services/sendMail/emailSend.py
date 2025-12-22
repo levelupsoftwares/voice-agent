@@ -1,5 +1,5 @@
 import smtplib
-from utilis.sendMail.emailAccount import senderEmail , appPassword
+from config.emailAccount import senderEmail , appPassword
 from email.message import EmailMessage
 
 

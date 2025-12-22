@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
-from livekit.agents import AgentTask, function_tool , RunContext
-from utilis.sendMail.emailSend import emailSend
-from meet import get_calendar_service, eventCreate
+from livekit.agents import function_tool
+from services.sendMail.emailSend import emailSend
+from services.meet import get_calendar_service, eventCreate
 import asyncio
 
 import os
@@ -31,6 +31,7 @@ class Assistant(Agent):
         self.solution = None
         self.user_email = None
         self.meeting_agreed = False
+        self.schedule_date_time = None
 
     @function_tool
     async def save_problem(self, problem: str):
@@ -61,6 +62,9 @@ class Assistant(Agent):
     @function_tool
     async def meeting_datetime(self,schedule_date_time:str,schedule_end_time:str):       
             """call when user agreed for meeting else ignore"""
+            if not self.user_email:
+                return{"error": "User email is missing...."}
+            
             self.schedule_date_time = schedule_date_time
             # self.schedule_time = schedule_time
             self.schedule_end_time = schedule_end_time
