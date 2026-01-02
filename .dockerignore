@@ -6,8 +6,8 @@ __pycache__/
 venv/
 
 # Ignore environment variables
+.env
 .env.local
-
 # Ignore sensitive email credentials file
 config
 
@@ -16,4 +16,4 @@ credentials.json
 
 # Ignore token.json
 token.json
-node_modules
+gitignore

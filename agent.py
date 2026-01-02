@@ -3,6 +3,7 @@ from livekit.agents import function_tool
 from services.sendMail.emailSend import emailSend
 from services.meet import get_calendar_service, eventCreate
 import asyncio
+# from datetime import daytime
 
 import os
 
@@ -22,7 +23,7 @@ class Assistant(Agent):
     def __init__(self) -> None:
         with open('instructions.txt','r') as file:
             content = file.read()
-            file.close()
+            # file.close()
         super().__init__(         
               instructions=content,
         )
@@ -55,7 +56,7 @@ class Assistant(Agent):
     async def save_meeting_decision(self, agreed: bool):
         """save the user decision regarding scheduling meeting"""
         self.meeting_agreed = agreed
-        return {"ok":"User decision saved"}
+        return {"ok":"User decision saved"} 
 
 
     
@@ -65,6 +66,7 @@ class Assistant(Agent):
             if not self.user_email:
                 return{"error": "User email is missing...."}
             
+            # tz = pytz.timezone("Asia/Karachi")
             self.schedule_date_time = schedule_date_time
             # self.schedule_time = schedule_time
             self.schedule_end_time = schedule_end_time
@@ -73,7 +75,7 @@ class Assistant(Agent):
             await asyncio.to_thread(eventCreate,service,"Schedule Meeting","Lahore","Diagnose the problem from root cause",schedule_date_time,schedule_end_time,self.user_email)
             # eventCreate("Schedule Meeting","Lahore","Dignose the problem from root cause",schedule_date,schedule_end_time,self.user_email)
 
-            return {"ok": "Date and time set for meeting + calneder event pushed"}
+            return {"ok": "Date and time set for meeting + calnedar event pushed"}
     
     @function_tool
     async def email_sending(self,confirm: bool):
@@ -188,6 +190,7 @@ async def my_agent(ctx: agents.JobContext):
 
     await session.start(
         room=ctx.room,
+        demo_room=ctx.room.name,
         agent=Assistant(),
         room_options=room_io.RoomOptions(
             audio_input=room_io.AudioInputOptions(

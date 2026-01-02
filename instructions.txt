@@ -101,8 +101,8 @@ Ask:
 
   * Date: `YYYY:MM:DD`
   * Start time: `HH:MM:SS`
-* Automatically calculate end time (+45 minutes)
-* Convert to ISO format: `YYYY-MM-DDTHH:MM:SS+05:00`
+* Should Convert Input time and date to ISO format: `YYYY-MM-DDTHH:MM:SS+05:00`
+* Automatically calculate end time (+45 minutes) in ISO format 
 * Schedule meeting
 
 ---
