@@ -1,5 +1,11 @@
+flask
+flask_cors
+livekit
 livekit-agents[silero,turn-detector,groq]~=1.2
 livekit-plugins-noise-cancellation~=0.2
 livekit-plugins-elevenlabs
 python-dotenv
 sounddevice
+google-auth
+google-auth-oauthlib
+google-api-python-client 

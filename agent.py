@@ -17,7 +17,7 @@ from livekit.agents.beta.workflows import GetEmailTask
 
 load_dotenv(".env.local")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-# ELEVEN_API_KEY=os.getenv("ELEVENLAB_API_KEY")
+ELEVEN_API_KEY=os.getenv("ELEVEN_API_KEY")
 
 class Assistant(Agent):
     def __init__(self) -> None:
@@ -170,8 +170,9 @@ class Assistant(Agent):
 
 server = AgentServer() 
 
-@server.rtc_session()
+@server.rtc_session(agent_name="my-voice-agent")
 async def my_agent(ctx: agents.JobContext):
+    await ctx.connect()
     session = AgentSession(
         stt=groq.STT(
       model="whisper-large-v3-turbo",
@@ -180,17 +181,21 @@ async def my_agent(ctx: agents.JobContext):
         llm=groq.LLM(
         model="llama-3.1-8b-instant"
     ),
-      tts=groq.TTS(
-      model = "playai-tts",
-      voice = "Fritz-PlayAI",
-   ),
+    tts=elevenlabs.TTS(
+    # api_key=ELEVEN_API_KEY,
+    voice_id="pNInz6obpgDQGcFmaJgB",
+    model="eleven_flash_v2_5"
+),
+
         vad=silero.VAD.load(),
         turn_detection=MultilingualModel(),
     )
 
+    print("---- Starting agent session...")
+
     await session.start(
         room=ctx.room,
-        demo_room=ctx.room.name,
+        # demo_room=ctx.room.name,
         agent=Assistant(),
         room_options=room_io.RoomOptions(
             audio_input=room_io.AudioInputOptions(
@@ -198,6 +203,10 @@ async def my_agent(ctx: agents.JobContext):
             ),
         ),
     )
+    print("--------- Agent has started session----------")
+    print("Room name:", ctx.room.name)
+    print("Demo room:", ctx.room)
+    
 
     content =None
     with open('instructions.txt','r') as file:

@@ -1,6 +1,12 @@
+import os
 import smtplib
-from config.emailAccount import senderEmail , appPassword
+# from config.emailAccount import senderEmail , appPassword
 from email.message import EmailMessage
+from dotenv import load_dotenv
+
+load_dotenv(".env.local")
+senderEmail = os.getenv("SENDER_EMAIL")
+appPassword= os.getenv("APP_PASSWORD")
 
 
 def emailSend(emailaddress , body , subject ):
