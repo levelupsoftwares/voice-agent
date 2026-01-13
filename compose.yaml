@@ -1,16 +1,35 @@
-version: '3.9'
+# version: '3.9'
+
+# services:
+#   server:
+#     build: .
+#     command: python3 server.py 
+#     ports:
+#       - "8000:3001"
+#     env_file:
+#       - .env.local
+
+#   agent:
+#     build: .
+#     command: python3 agent.py start
+#     env_file:
+#       - .env.local
 
 services:
-  server:
-    build: .
-    command: python3 server.py 
-    ports:
-      - "8000:3001"
-    env_file:
-      - .env.local
-
-  agent:
-    build: .
+ server:
+  build:
+    context: .
+    dockerfile: docker/Dockerfile.server
+  command: python3 server.py
+  ports:
+    - "8000:3001"
+  env_file:
+    - .env.local
+  
+ agent:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.agent
     command: python3 agent.py start
     env_file:
       - .env.local
