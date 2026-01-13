@@ -9,8 +9,8 @@ import os
 
 from livekit import agents, rtc
 from livekit.agents import AgentServer,AgentSession, Agent, room_io
-from livekit.plugins import noise_cancellation, silero , groq , elevenlabs
-from livekit.plugins.turn_detector.multilingual import MultilingualModel
+from livekit.plugins import noise_cancellation , groq , elevenlabs
+# from livekit.plugins.turn_detector.multilingual import MultilingualModel
 from livekit.agents.beta.workflows import GetEmailTask
 
 
@@ -187,8 +187,8 @@ async def my_agent(ctx: agents.JobContext):
     model="eleven_flash_v2_5"
 ),
 
-        vad=silero.VAD.load(),
-        turn_detection=MultilingualModel(),
+        vad=None,
+        turn_detection=None,
     )
 
     print("---- Starting agent session...")

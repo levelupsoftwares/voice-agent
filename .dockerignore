@@ -17,3 +17,15 @@ credentials.json
 # Ignore token.json
 token.json
 gitignore
+.git
+.gitignore
+__pycache__/
+*.pyc
+.env
+.env.local
+venv/
+.venv/
+models/
+.cache/
+logs/
+downloads/
