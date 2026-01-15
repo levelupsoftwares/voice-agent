@@ -3,13 +3,14 @@ from livekit.agents import function_tool
 from services.sendMail.emailSend import emailSend
 from services.meet import get_calendar_service, eventCreate
 import asyncio
+from typing import Annotated
 # from datetime import daytime
 
 import os
 
 from livekit import agents, rtc
 from livekit.agents import AgentServer,AgentSession, Agent, room_io
-from livekit.plugins import noise_cancellation , groq , elevenlabs
+from livekit.plugins import noise_cancellation , groq , elevenlabs ,silero
 # from livekit.plugins.turn_detector.multilingual import MultilingualModel
 from livekit.agents.beta.workflows import GetEmailTask
 
@@ -21,7 +22,7 @@ ELEVEN_API_KEY=os.getenv("ELEVEN_API_KEY")
 
 class Assistant(Agent):
     def __init__(self) -> None:
-        with open('instructions.txt','r') as file:
+        with open('instructions.yaml','r') as file:
             content = file.read()
             # file.close()
         super().__init__(         
@@ -53,9 +54,9 @@ class Assistant(Agent):
         return{"ok":"user email stored"}
 
     @function_tool
-    async def save_meeting_decision(self, agreed: bool):
+    async def save_meeting_decision(self, agreed: Annotated[str, "Whether the user agreed (true/false)"]):
         """save the user decision regarding scheduling meeting"""
-        self.meeting_agreed = agreed
+        self.meeting_agreed = str(agreed).lower() in ("true", "yes", "1")
         return {"ok":"User decision saved"} 
 
 
@@ -78,8 +79,10 @@ class Assistant(Agent):
             return {"ok": "Date and time set for meeting + calnedar event pushed"}
     
     @function_tool
-    async def email_sending(self,confirm: bool):
+    async def email_sending(self,confirm:bool):
         """Send final email with solution and optional meeting details"""
+        if isinstance(confirm, str):
+          confirm = confirm.lower() in ("true", "yes", "1")
         if not confirm:
             return {"error": "Email sending not confirmed"}
     
@@ -179,16 +182,15 @@ async def my_agent(ctx: agents.JobContext):
       language="en",
    ),
         llm=groq.LLM(
-        model="llama-3.1-8b-instant"
+        model="meta-llama/llama-4-scout-17b-16e-instruct"
     ),
     tts=elevenlabs.TTS(
-    # api_key=ELEVEN_API_KEY,
+    api_key=ELEVEN_API_KEY,
     voice_id="pNInz6obpgDQGcFmaJgB",
     model="eleven_flash_v2_5"
 ),
 
-        vad=None,
-        turn_detection=None,
+    vad=silero.VAD.load(),
     )
 
     print("---- Starting agent session...")
@@ -209,7 +211,7 @@ async def my_agent(ctx: agents.JobContext):
     
 
     content =None
-    with open('instructions.txt','r') as file:
+    with open('instructions.yaml','r') as file:
             content = file.read()
             file.close()
 
