@@ -23,5 +23,5 @@ def emailSend(emailaddress , body , subject ):
         
         s.quit()
 
-    except:
-        print('email function is not working...........')
+    except Exception as ex:
+        print('....................email function is not working...........',repr(ex))

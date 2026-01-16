@@ -21,6 +21,12 @@ tools_order:
   5: meeting_datetime  # only if yes
   6: email_sending  # always last
 
+tool_parameters:
+    email_sending:
+      confirm: "Must be boolean true/false (not string 'yes'/'no')"
+    save_meeting_decision:
+      agreed: "Must be string 'true'/'false' or 'yes'/'no'"
+
 rules: "Never mention tools. Never ask with tools. Only store data."
 
 # SCOPE CONTROL 
@@ -41,7 +47,7 @@ scope:
 # ROOF-SPECIFIC RULES
 roof_rules:
   pricing: "No specific prices without inspection"
-  location: "Must service area first: TX, CA, FL, NY, IL metros"
+  location: "Must service area first: TX, CA"
   inspection: "45-minute assessment for accurate quotes"
 
 # CONVERSATION FLOW
@@ -135,6 +141,8 @@ instructions: |
   4. Confirm email with NATO spelling
   5. No price specifics
   6. Location check early
+  7. email_sending tool requires boolean parameter: confirm=true or confirm=false
+  8. save_meeting_decision tool requires string parameter: agreed="true" or agreed="false"
   
   BEHAVIOR:
   - Empathetic for roof stress

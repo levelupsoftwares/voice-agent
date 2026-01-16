@@ -79,11 +79,22 @@ class Assistant(Agent):
             return {"ok": "Date and time set for meeting + calnedar event pushed"}
     
     @function_tool
-    async def email_sending(self,confirm:bool):
+    async def email_sending(self, confirm: Annotated[str, "Whether the user confirmed sending the email (true/false)"]) -> dict:
         """Send final email with solution and optional meeting details"""
-        if isinstance(confirm, str):
-          confirm = confirm.lower() in ("true", "yes", "1")
-        if not confirm:
+        print("enter in the emailsending function")
+
+        try:
+            if isinstance(confirm, str):
+                confirm_bool = confirm.strip().lower() in ("true", "yes", "1")
+            elif isinstance(confirm, bool):
+                confirm_bool = confirm
+            else:
+                # fallback: attempt string conversion
+                confirm_bool = str(confirm).lower() in ("true", "yes", "1")
+        except Exception:
+            confirm_bool = False
+
+        if not confirm_bool:
             return {"error": "Email sending not confirmed"}
     
         if not self.solution or not self.user_email:
@@ -107,7 +118,7 @@ class Assistant(Agent):
     We have also scheduled a meeting to discuss this further.
 
     Meeting Date and Time: {self.schedule_date_time}
-    # Start Time: {self.schedule_time}
+
     End Time: {self.schedule_end_time}
 
     You will receive a calendar invitation shortly.
@@ -210,14 +221,14 @@ async def my_agent(ctx: agents.JobContext):
     print("Demo room:", ctx.room)
     
 
-    content =None
-    with open('instructions.yaml','r') as file:
-            content = file.read()
-            file.close()
+    # content =None
+    # with open('instructions.yaml','r') as file:
+    #         content = file.read()
+    #         file.close()
 
-    await session.generate_reply(
-        instructions = content
-    )
+    # await session.generate_reply(
+    #     instructions = content
+    # )
     
  
 
