@@ -4,6 +4,7 @@ from services.sendMail.emailSend import emailSend
 from services.meet import get_calendar_service, eventCreate
 import asyncio
 from typing import Annotated
+from typing import Optional 
 # from datetime import daytime
 
 import os
@@ -56,30 +57,41 @@ class Assistant(Agent):
     @function_tool
     async def save_meeting_decision(self, agreed: Annotated[str, "Whether the user agreed (true/false)"]):
         """save the user decision regarding scheduling meeting"""
-        self.meeting_agreed = str(agreed).lower() in ("true", "yes", "1")
+        self.meeting_agreed = str(agreed).strip().lower() in ("true", "yes", "1")
+        print(f"-: save_meeting_decision -> meeting_agreed = {self.meeting_agreed}:-")
         return {"ok":"User decision saved"} 
 
 
     
     @function_tool
-    async def meeting_datetime(self,schedule_date_time:str,schedule_end_time:str):       
+    async def meeting_datetime(self,schedule_date_time:str,schedule_end_time:str, email: Optional[str] = None) -> dict:       
             """call when user agreed for meeting else ignore"""
             if not self.user_email:
                 return{"error": "User email is missing...."}
+            
+            if email:
+                self.user_email = email
+                print(f"-: meeting_datetime -> email provided in call: {email}")
             
             # tz = pytz.timezone("Asia/Karachi")
             self.schedule_date_time = schedule_date_time
             # self.schedule_time = schedule_time
             self.schedule_end_time = schedule_end_time
             
-            service = await asyncio.to_thread(get_calendar_service)
-            await asyncio.to_thread(eventCreate,service,"Schedule Meeting","Lahore","Diagnose the problem from root cause",schedule_date_time,schedule_end_time,self.user_email)
-            # eventCreate("Schedule Meeting","Lahore","Dignose the problem from root cause",schedule_date,schedule_end_time,self.user_email)
+            try:
+                 service = await asyncio.to_thread(get_calendar_service)
+                 await asyncio.to_thread(eventCreate,service,"Schedule Meeting","Lahore","Diagnose the problem from root cause",schedule_date_time,schedule_end_time,self.user_email)
 
+           
+            # eventCreate("Schedule Meeting","Lahore","Dignose the problem from root cause",schedule_date,schedule_end_time,self.user_email)
+            except Exception as e:
+                 print(f"[ERROR] meeting_datetime -> calendar creation failed: {e}")
+                 return {"error": f"Calendar event creation failed: {str(e)}"}            
+            print(f"[DEBUG] meeting_datetime -> scheduled {schedule_date_time} to {schedule_end_time} for {self.user_email}")
             return {"ok": "Date and time set for meeting + calnedar event pushed"}
     
     @function_tool
-    async def email_sending(self, confirm: Annotated[str, "Whether the user confirmed sending the email (true/false)"]) -> dict:
+    async def email_sending(self, confirm: Annotated[str, "Whether the user confirmed sending the email (true/false)"],user_email: Optional[str] = None,solution: Optional[str] = None ) -> dict:
         """Send final email with solution and optional meeting details"""
         print("enter in the emailsending function")
 
@@ -90,14 +102,19 @@ class Assistant(Agent):
                 confirm_bool = confirm
             else:
                 # fallback: attempt string conversion
-                confirm_bool = str(confirm).lower() in ("true", "yes", "1")
+                confirm_bool = str(confirm).strip().lower() in ("true", "yes", "1")
         except Exception:
             confirm_bool = False
 
         if not confirm_bool:
             return {"error": "Email sending not confirmed"}
-    
-        if not self.solution or not self.user_email:
+        
+        effective_email = user_email or self.user_email
+        effective_solution = solution or self.solution
+        print(f"[DEBUG] email_sending -> effective_email={effective_email}, has_solution={bool(effective_solution)}")
+
+
+        if not effective_email or not effective_solution:
             return {"error": "Missing solution or email"}
 
         subject = "Solution to Your Problem"
@@ -109,7 +126,7 @@ class Assistant(Agent):
 
     Here is the solution to your problem:
 
-    {self.solution}
+    {effective_solution}
     """
 
         if self.meeting_agreed:
@@ -132,9 +149,10 @@ class Assistant(Agent):
     AI Assistant
     """
         try:
-            await asyncio.to_thread(emailSend,self.user_email, body, subject)
+            await asyncio.to_thread(emailSend,effective_email, body, subject)
+            print(f"[DEBUG] email_sending -> emailSend succeeded to {effective_email}")
         except Exception as e:
-            return {"error": str(e)}
+            return {"error :-Email sending failed:": str(e)}
         
         return{'ok':"email_sent"}
 
