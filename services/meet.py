@@ -73,11 +73,11 @@ def eventCreate(service,summary,location,description,s_date_time,e_date_time,att
             "colorId":6,
             "start":{
                 "dateTime":s_date_time,
-                "timeZone":"Asia/Karachi"
+                # "timeZone":"Asia/Karachi"
             },
             "end":{
                 "dateTime":e_date_time,
-                "timeZone":"Asia/Karachi"
+                # "timeZone":"Asia/Karachi"
             },
             "attendees":[
                 {"email":f"{attendee_email}"}
